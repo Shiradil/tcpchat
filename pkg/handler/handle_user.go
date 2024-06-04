@@ -37,7 +37,6 @@ func UserHandler(conn net.Conn, mu *sync.Mutex) {
 
 	defer func() {
 		conn.Close()
-		SendMessage(red+name+" has left the chat"+end, conn, mu)
 		deleteUser(name, mu)
 	}()
 
@@ -96,23 +95,31 @@ func UserHandler(conn net.Conn, mu *sync.Mutex) {
 				case "leave":
 					fmt.Fprintf(conn, "You have not joined any chat\n")
 				case "ban":
-					if len(inputMessageSlice) != 2 {
-						fmt.Fprintf(conn, "Please provide a name of the user to ban\n")
-						continue
+					if name == "admin" {
+						if len(inputMessageSlice) != 2 {
+							fmt.Fprintf(conn, "Please provide a name of the user to ban\n")
+							continue
+						}
+						mu.Lock()
+						banUser(inputMessageSlice[1], mu)
+						mu.Unlock()
+						fmt.Fprintf(conn, "User %s has been banned\n", inputMessageSlice[1])
+					} else {
+						fmt.Fprintf(conn, "You are not admin")
 					}
-					mu.Lock()
-					banUser(inputMessageSlice[1], mu)
-					mu.Unlock()
-					fmt.Fprintf(conn, "User %s has been banned\n", inputMessageSlice[1])
 				case "kick":
-					if len(inputMessageSlice) != 2 {
-						fmt.Fprintf(conn, "Please provide a name of the user to kick\n")
-						continue
+					if name == "admin" {
+						if len(inputMessageSlice) != 2 {
+							fmt.Fprintf(conn, "Please provide a name of the user to kick\n")
+							continue
+						}
+						mu.Lock()
+						kickUser(inputMessageSlice[1], mu)
+						mu.Unlock()
+						fmt.Fprintf(conn, "User %s has been kicked\n", inputMessageSlice[1])
+					} else {
+						fmt.Fprintf(conn, "You are not admin")
 					}
-					mu.Lock()
-					kickUser(inputMessageSlice[1], mu)
-					mu.Unlock()
-					fmt.Fprintf(conn, "User %s has been kicked\n", inputMessageSlice[1])
 				default:
 					fmt.Fprintf(conn, "Command doesn't exist\n")
 				}
