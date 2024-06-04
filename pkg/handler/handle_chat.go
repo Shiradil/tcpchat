@@ -24,12 +24,14 @@ func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User
 	mu.Unlock()
 	SendMessage(green+user.Name+" has joined the chat"+end, conn, mu)
 
-	now := time.Now().Format("2006-01-02 15:04:05")
+	now := time.Now().Format("TCP SERVER 15:04")
 	fmt.Fprintf(conn, "[%s][%s]:", now, user.Name)
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		inputMessage := scanner.Text()
+
+		fmt.Println(inputMessage)
 		if checkMessage(inputMessage) {
 			if inputMessage[0] == 47 {
 				inputMessageSlice := strings.Split(inputMessage, " ")
@@ -38,8 +40,15 @@ func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User
 					SendMessage(green+user.Name+" has left the chat"+end, conn, mu)
 					LeaveChat(chatRoom, user, mu)
 					return
+				case "bot":
+					if len(inputMessageSlice) < 2 {
+						fmt.Fprintf(conn, "Bot: Please provide a command\n")
+						continue
+					}
+					command := inputMessageSlice[1]
+					app.Bot.HandleCommand(conn, command, mu, user.Name)
 				default:
-					fmt.Fprintf(conn, "command doesn't exist\n")
+					fmt.Fprintf(conn, "Command doesn't exist\n")
 				}
 			} else {
 				SendMessage(fmt.Sprintf("[%s][%s]: %s", now, user.Name, inputMessage), conn, mu)

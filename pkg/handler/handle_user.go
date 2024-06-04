@@ -91,7 +91,11 @@ func UserHandler(conn net.Conn, mu *sync.Mutex) {
 
 					UserChatHandler(muChat, chat, user)
 				case "help":
-					fmt.Fprintf(conn, "Commands:\n/create [chat_name] - Create a new chat\n/list - List all chats\n/join [chat_name] - Join an existing chat\n/leave - Leave the current chat\n/ban [user_name] - Ban a user\n/kick [user_name] - Kick a user\n")
+					if name == "admin" {
+						fmt.Fprintf(conn, "Admin commands:\n/ban [user_name] - Ban a user\n/kick [user_name] - Kick a user\n/stat - statistics")
+					} else {
+						fmt.Fprintf(conn, "Commands:\n/create [chat_name] - Create a new chat\n/list - List all chats\n/join [chat_name] - Join an existing chat\n/leave - Leave the current chat\n")
+					}
 				case "leave":
 					fmt.Fprintf(conn, "You have not joined any chat\n")
 				case "ban":
@@ -117,6 +121,37 @@ func UserHandler(conn net.Conn, mu *sync.Mutex) {
 						kickUser(inputMessageSlice[1], mu)
 						mu.Unlock()
 						fmt.Fprintf(conn, "User %s has been kicked\n", inputMessageSlice[1])
+					} else {
+						fmt.Fprintf(conn, "You are not admin")
+					}
+				case "stat":
+					if name == "admin" {
+						mu.Lock()
+						ChatsName := make([]string, len(app.ChatsName))
+						copy(ChatsName, app.ChatsName)
+						users := make([]string, len(app.Users))
+						names := make([]string, len(app.Users))
+						for _, user := range app.Users {
+							names = append(names, user.Name)
+						}
+						copy(users, names)
+						mu.Unlock()
+						result := ""
+						for i, name := range ChatsName {
+							result += fmt.Sprintf("%d: %s\n", (i + 1), name)
+						}
+						resultu := ""
+						fmt.Println(names)
+						for i, name := range names {
+							if i >= 2{
+								resultu += fmt.Sprintf("%d: %s\n", (i - 1), name)
+							}
+						}
+
+						fmt.Fprintf(conn, "Chats:\n")
+						fmt.Fprintf(conn, result)
+						fmt.Fprintf(conn, "Users:\n")
+						fmt.Fprintf(conn, resultu)
 					} else {
 						fmt.Fprintf(conn, "You are not admin")
 					}

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net-cat/models"
+	"net-cat/pkg/bot"
 	"net-cat/pkg/config"
 	"net-cat/pkg/server"
 	"os"
@@ -19,6 +20,7 @@ func main() {
 		HostNumber: number,
 		ChatRoom:   make(map[string]*models.ChatRoom),
 		ChatsName:  make([]string, 0, 3),
+		Bot:        *bot.NewBot("Chatbot"),
 	}
 
 	server.NewServer(&app)
