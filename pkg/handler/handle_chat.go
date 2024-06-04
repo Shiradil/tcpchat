@@ -38,7 +38,7 @@ func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User
 	}
 	chatRoom.Users = append(chatRoom.Users, user)
 	mu.Unlock()
-	SendMessage(green+user.Name+" has joined the chat"+end, conn, mu)
+	SendMessage(user.Name+" has joined the chat", conn, mu)
 
 	now := time.Now().Format("TCP SERVER 15:04")
 	fmt.Fprintf(conn, "[%s][%s]:", now, user.Name)
@@ -53,7 +53,7 @@ func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User
 				inputMessageSlice := strings.Split(inputMessage, " ")
 				switch inputMessageSlice[0][1:] {
 				case "leave":
-					SendMessage(green+user.Name+" has left the chat"+end, conn, mu)
+					SendMessage(user.Name+" has left the chat", conn, mu)
 					LeaveChat(chatRoom, user, mu)
 					return
 				case "bot":
@@ -75,7 +75,7 @@ func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User
 
 	defer func() {
 		conn.Close()
-		SendMessage(red+user.Name+" has left the chat"+end, conn, mu)
+		SendMessage(user.Name+" has left the chat", conn, mu)
 		LeaveChat(chatRoom, user, mu)
 	}()
 }
@@ -113,7 +113,7 @@ func LeaveChat(chatRoom *models.ChatRoom, user models.User, mu *sync.Mutex) {
 func acceptMessage(crypteMessage string, user models.User) {
 	msg, _ := Decrypt(app.Key, crypteMessage)
 	fmt.Fprintf(user.Conn, "\n%s\n", msg)
-	now := time.Now().Format("2006-01-02 15:04:05")
+	now := time.Now().Format("TCP SERVER 15:04")
 	fmt.Fprintf(user.Conn, "[%s][%s]:", now, user.Name)
 }
 

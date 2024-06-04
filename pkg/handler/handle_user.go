@@ -22,7 +22,7 @@ func NewHanlder(a *config.AppConfig) {
 
 func UserHandler(conn net.Conn, mu *sync.Mutex) {
 	scanner := bufio.NewScanner(conn)
-	fmt.Fprintf(conn, "%s%s%s", cyan, logo, end)
+	fmt.Fprintf(conn, "%s", logo)
 
 	name := getName(conn, mu)
 	user := models.User{
@@ -143,7 +143,7 @@ func UserHandler(conn net.Conn, mu *sync.Mutex) {
 						resultu := ""
 						fmt.Println(names)
 						for i, name := range names {
-							if i >= 2{
+							if i >= 2 {
 								resultu += fmt.Sprintf("%d: %s\n", (i - 1), name)
 							}
 						}
@@ -170,11 +170,11 @@ func getName(conn net.Conn, mu *sync.Mutex) string {
 	for scanner.Scan() {
 		name = scanner.Text()
 		if !checkMessage(name) {
-			fmt.Fprintf(conn, "%sWrong input!!! Enter your name again%s\n[ENTER YOUR NAME]:", red, end)
+			fmt.Fprintf(conn, "Wrong input!!! Enter your name again\n[ENTER YOUR NAME]:")
 			continue
 		} else if !nameIsBusy(name, mu) {
 			fmt.Println()
-			fmt.Fprintf(conn, "%sName is busy!!! Enter your name again%s\n[ENTER YOUR NAME]:", red, end)
+			fmt.Fprintf(conn, "Name is busy!!! Enter your name again\n[ENTER YOUR NAME]:")
 			continue
 		}
 
