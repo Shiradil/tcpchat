@@ -2,13 +2,29 @@ package handler
 
 import (
 	"bufio"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"net"
 	"net-cat/models"
 	"strings"
 	"sync"
 	"time"
 )
+
+var encryptionKey []byte
+
+func GenerateKey() ([]byte, error) {
+	key := make([]byte, 32)
+	_, err := rand.Read(key)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}
 
 func UserChatHandler(mu *sync.Mutex, chatRoom *models.ChatRoom, user models.User) {
 	conn := user.Conn
@@ -74,9 +90,11 @@ func SendMessage(message string, sender net.Conn, mu *sync.Mutex) {
 
 	for _, user := range users {
 		if user.Conn != sender {
-			fmt.Fprintf(user.Conn, "\n%s\n", message)
-			now := time.Now().Format("2006-01-02 15:04:05")
-			fmt.Fprintf(user.Conn, "[%s][%s]:", now, user.Name)
+			cryptedMessage, err := Encrypt(app.Key, message)
+			if err != nil {
+				fmt.Println(err)
+			}
+			acceptMessage(cryptedMessage, user)
 		}
 	}
 }
@@ -90,4 +108,59 @@ func LeaveChat(chatRoom *models.ChatRoom, user models.User, mu *sync.Mutex) {
 		}
 	}
 	mu.Unlock()
+}
+
+func acceptMessage(crypteMessage string, user models.User) {
+	msg, _ := Decrypt(app.Key, crypteMessage)
+	fmt.Fprintf(user.Conn, "\n%s\n", msg)
+	now := time.Now().Format("2006-01-02 15:04:05")
+	fmt.Fprintf(user.Conn, "[%s][%s]:", now, user.Name)
+}
+
+// Encrypt function
+func Encrypt(key []byte, text string) (string, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	b := []byte(text)
+	ciphertext := make([]byte, aes.BlockSize+len(b))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], b)
+
+	return fmt.Sprintf("%x:%x", iv, ciphertext[aes.BlockSize:]), nil
+}
+
+// Decrypt function
+func Decrypt(key []byte, cryptoText string) (string, error) {
+	parts := strings.SplitN(cryptoText, ":", 2)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("invalid encrypted text format")
+	}
+
+	iv, err := hex.DecodeString(parts[0])
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext, err := hex.DecodeString(parts[1])
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(ciphertext, ciphertext)
+
+	return string(ciphertext), nil
 }

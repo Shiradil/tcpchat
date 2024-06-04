@@ -5,6 +5,7 @@ import (
 	"net-cat/models"
 	"net-cat/pkg/bot"
 	"net-cat/pkg/config"
+	"net-cat/pkg/handler"
 	"net-cat/pkg/server"
 	"os"
 	"strconv"
@@ -16,11 +17,13 @@ func main() {
 		log.Fatal("please write in the right format\n Example: go run . 8080")
 	}
 
+	key, _ := handler.GenerateKey()
 	app := config.AppConfig{
 		HostNumber: number,
 		ChatRoom:   make(map[string]*models.ChatRoom),
 		ChatsName:  make([]string, 0, 3),
 		Bot:        *bot.NewBot("Chatbot"),
+		Key:        key,
 	}
 
 	server.NewServer(&app)

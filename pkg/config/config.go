@@ -12,4 +12,5 @@ type AppConfig struct {
 	ChatsName  []string
 	AdminPanel models.AdminPanel
 	Bot        bot.Bot
+	Key        []byte
 }
