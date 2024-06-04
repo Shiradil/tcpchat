@@ -80,5 +80,3 @@ $ nc $IP $port
 [2020-01-20 16:04:57][NewClient]:^C
 ```
 ## Authors
-
-- zhtalipov
