@@ -1,8 +1,8 @@
 package config
 
 import (
+	"net-cat/bot"
 	"net-cat/models"
-	"net-cat/pkg/bot"
 )
 
 type AppConfig struct {

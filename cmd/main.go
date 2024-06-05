@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
+	"net-cat/bot"
+	"net-cat/config"
+	"net-cat/handler"
 	"net-cat/models"
-	"net-cat/pkg/bot"
-	"net-cat/pkg/config"
-	"net-cat/pkg/handler"
-	"net-cat/pkg/server"
+	"net-cat/server"
 	"os"
 	"strconv"
 )

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net-cat/pkg/config"
-	"net-cat/pkg/handler"
+	"net-cat/config"
+	"net-cat/handler"
 	"sync"
 )
 

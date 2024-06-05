@@ -8,7 +8,7 @@ import (
 var logo string
 
 func getLogo() {
-	content, err := ioutil.ReadFile("./pkg/hello.txt")
+	content, err := ioutil.ReadFile("./hello.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

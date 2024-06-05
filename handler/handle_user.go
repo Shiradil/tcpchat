@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"net-cat/config"
 	"net-cat/models"
-	"net-cat/pkg/config"
 	"strings"
 	"sync"
 )
