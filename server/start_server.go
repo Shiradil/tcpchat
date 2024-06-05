@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 	"net-cat/config"
-	"net-cat/handler"
+	"net-cat/handlers"
 	"sync"
 )
 
@@ -25,7 +25,7 @@ func StartServer() {
 	}
 	fmt.Printf("Listening on the port :%s\n", app.HostNumber)
 
-	handler.NewHanlder(app)
+	handlers.NewHanlder(app)
 
 	defer li.Close()
 	for {
@@ -34,6 +34,6 @@ func StartServer() {
 			log.Println(err)
 		}
 
-		go handler.UserHandler(conn, &mu)
+		go handlers.UserHandler(conn, &mu)
 	}
 }
